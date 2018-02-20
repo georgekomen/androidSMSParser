@@ -13,7 +13,6 @@ public class APIUtils {
     public static final String BASE_URL = "http://api.sunamiapp.net/api/customers/";
 
     public static SMSServiceInterface sMSServiceInterface() {
-
         return RetrofitClient.getClient(BASE_URL).create(SMSServiceInterface.class);
     }
 }

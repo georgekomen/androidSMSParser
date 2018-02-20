@@ -30,10 +30,8 @@ public class SMSService extends Service {
     private SMSServiceInterface smsServiceInterface;
     private Handler handler;
 
-    private int sent = 0;
     public SMSService() {
-        smsServiceInterface = APIUtils.sMSServiceInterface();
-        getMessages();
+
     }
 
     @Override
@@ -49,7 +47,7 @@ public class SMSService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private void getMessages(){
+    private void getMessages() {
         handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {
@@ -58,19 +56,10 @@ public class SMSService extends Service {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onResponse(Call<List<Message>> call, Response<List<Message>> response) {
-                        if(response.isSuccessful()) {
+                        if (response.isSuccessful()) {
                             List<Message> changesList = response.body();
                             changesList.forEach(change -> {
-                                System.out.println(change.getMessage());
-                                if(sent < 1){
-                                    sendSMS("+254714749630","unataka credo?");
-                                    sent ++;
-                                }
-                                try {
-                                    Thread.sleep(5000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+
                             });
                         } else {
                             System.out.println(response.errorBody());
@@ -87,11 +76,11 @@ public class SMSService extends Service {
         }, 2000);
     }
 
-    private void markMessageAsSent(Message message){
+    private void markMessageAsSent(Message message) {
         smsServiceInterface.markMessageAsSent(message).enqueue(new Callback<Message>() {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
-                if(response.isSuccessful()) {
+                if (response.isSuccessful()) {
                     System.out.println(response.raw());
                 } else {
                     System.out.println(response.errorBody());
@@ -103,70 +92,5 @@ public class SMSService extends Service {
 
             }
         });
-    }
-
-    public void sendSMS(String phoneNumber,String message) {
-        SmsManager smsManager = SmsManager.getDefault();
-
-        String SENT = "SMS_SENT";
-        String DELIVERED = "SMS_DELIVERED";
-
-        SmsManager sms = SmsManager.getDefault();
-        ArrayList<String> parts = sms.divideMessage(message);
-        int messageCount = parts.size();
-
-//        Log.i("Message Count", "Message Count: " + messageCount);
-
-        ArrayList<PendingIntent> deliveryIntents = new ArrayList<PendingIntent>();
-        ArrayList<PendingIntent> sentIntents = new ArrayList<PendingIntent>();
-
-        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
-        PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
-
-        for (int j = 0; j < messageCount; j++) {
-            sentIntents.add(sentPI);
-            deliveryIntents.add(deliveredPI);
-        }
-
-        // ---when the SMS has been sent---
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        Log.i("Message Count", "-------------sent");
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-
-                        break;
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-
-                        break;
-                }
-            }
-        }, new IntentFilter(SENT));
-
-        // ---when the SMS has been delivered---
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        Log.i("Message Count", "-------------delivered");
-                        break;
-                    case Activity.RESULT_CANCELED:
-
-                        break;
-                }
-            }
-        }, new IntentFilter(DELIVERED));
-        smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
-//        sms.sendMultipartTextMessage(phoneNumber, null, parts, sentIntents, deliveryIntents);
     }
 }

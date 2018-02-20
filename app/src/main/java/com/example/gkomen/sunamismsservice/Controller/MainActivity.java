@@ -1,26 +1,14 @@
 package com.example.gkomen.sunamismsservice.Controller;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-
-import com.example.gkomen.sunamismsservice.APIInterface.SMSServiceInterface;
-import com.example.gkomen.sunamismsservice.APIUtils.APIUtils;
-import com.example.gkomen.sunamismsservice.Model.Message;
 import com.example.gkomen.sunamismsservice.R;
 import com.example.gkomen.sunamismsservice.Service.SMSService;
-
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     @Override
