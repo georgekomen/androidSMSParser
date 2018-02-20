@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,6 +20,11 @@ import android.widget.Toast;
 import com.example.gkomen.sunamismsservice.APIInterface.SMSServiceInterface;
 import com.example.gkomen.sunamismsservice.APIUtils.APIUtils;
 import com.example.gkomen.sunamismsservice.Model.Message;
+import com.example.gkomen.sunamismsservice.Model.SwitchResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +36,8 @@ import retrofit2.Response;
 public class SMSService extends Service {
     private SMSServiceInterface smsServiceInterface;
     private Handler handler;
+    private Cursor cursor;
+    private SwitchResponse switchResponse;
 
     public SMSService() {
 
@@ -92,5 +101,34 @@ public class SMSService extends Service {
 
             }
         });
+    }
+
+    public void readSms() {
+        // public static final String INBOX = "content://sms/inbox";
+        // public static final String SENT = "content://sms/sent";
+        // public static final String DRAFT = "content://sms/draft";
+        handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                cursor = getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        for (int idx = 0; idx < cursor.getCount(); idx++) {
+                            String msg = cursor.getString(cursor.getColumnIndexOrThrow("body"));
+                            String address = cursor.getString(cursor.getColumnIndexOrThrow("address"));
+                            String person = cursor.getString(cursor.getColumnIndexOrThrow("person"));
+
+                            if(msg.contains("*1sunami#1")){
+                                switchResponse = new SwitchResponse();
+                                switchResponse.setIMEI("");
+
+                            }
+                        }
+                        cursor.close();
+                    }
+                }
+                handler.postDelayed(this, 60000);
+            }
+        }, 2000);
     }
 }

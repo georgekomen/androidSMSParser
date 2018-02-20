@@ -1,6 +1,7 @@
 package com.example.gkomen.sunamismsservice.APIInterface;
 
 import com.example.gkomen.sunamismsservice.Model.Message;
+import com.example.gkomen.sunamismsservice.Model.SwitchResponse;
 
 import java.util.List;
 
@@ -19,4 +20,7 @@ public interface SMSServiceInterface {
 
     @POST("markMessageAsSent")
     Call<Message> markMessageAsSent(@Body Message message);
+
+    @POST("recordSwitchResponse")
+    Call<SwitchResponse> recordSwitchResponse(@Body SwitchResponse switchResponse);
 }
