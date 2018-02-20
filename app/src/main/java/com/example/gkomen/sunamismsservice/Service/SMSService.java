@@ -46,7 +46,7 @@ public class SMSService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         smsServiceInterface = APIUtils.sMSServiceInterface();
-        getMessages();
+        readSms();
         return START_NOT_STICKY;
     }
 
@@ -117,6 +117,7 @@ public class SMSService extends Service {
                             String msg = cursor.getString(cursor.getColumnIndexOrThrow("body"));
                             String address = cursor.getString(cursor.getColumnIndexOrThrow("address"));
                             String person = cursor.getString(cursor.getColumnIndexOrThrow("person"));
+                            Log.d("-----------------------", msg);
 
                             //*1sunami#1 *2888888#2 *31#3
                             if(msg.contains("*1sunami#1")){
@@ -140,9 +141,9 @@ public class SMSService extends Service {
                         cursor.close();
                     }
                 }
-                handler.postDelayed(this, 60000);
+                handler.postDelayed(this, 1000);
             }
-        }, 2000);
+        }, 1000);
     }
 
     private void recordSwitchResponse(SwitchResponse switchResponse){

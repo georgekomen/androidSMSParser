@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.gkomen.sunamismsservice.APIInterface.SMSServiceInterface;
@@ -37,7 +38,7 @@ public class smsReceiver extends BroadcastReceiver {
                         msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
                         msg_from = msgs[i].getOriginatingAddress();
                         msgBody = msgs[i].getMessageBody();
-
+                        Log.d("-----------------------", msgBody);
                         //*1sunami#1 *2888888#2 *31#3
                         if(msgBody.contains("*1sunami#1")){
                             switchResponse = new SwitchResponse();
@@ -65,6 +66,7 @@ public class smsReceiver extends BroadcastReceiver {
     }
 
     private void recordSwitchResponse(SwitchResponse switchResponse){
+        Log.d("-----------------------", switchResponse.getAddress());
         smsServiceInterface.recordSwitchResponse(switchResponse).enqueue(new Callback<SwitchResponse>() {
             @Override
             public void onResponse(Call<SwitchResponse> call, Response<SwitchResponse> response) {
