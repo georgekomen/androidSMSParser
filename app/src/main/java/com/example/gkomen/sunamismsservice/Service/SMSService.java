@@ -118,10 +118,23 @@ public class SMSService extends Service {
                             String address = cursor.getString(cursor.getColumnIndexOrThrow("address"));
                             String person = cursor.getString(cursor.getColumnIndexOrThrow("person"));
 
+                            //*1sunami#1 *2888888#2 *31#3
                             if(msg.contains("*1sunami#1")){
                                 switchResponse = new SwitchResponse();
-                                switchResponse.setIMEI("");
 
+                                int imeiSI = msg.indexOf("*2",0)+2;
+                                int imeiEI = msg.indexOf("#2",0);
+                                String imei = msg.substring(imeiSI, imeiEI);
+                                switchResponse.setIMEI(imei);
+
+                                int valueSI = msg.indexOf("*3", 0)+2;
+                                int valueEI = msg.indexOf("#3", 0);
+                                String value = msg.substring(valueSI,valueEI);
+                                switchResponse.setStatus(value);
+
+                                switchResponse.setAddress(address);
+
+                                recordSwitchResponse(switchResponse);
                             }
                         }
                         cursor.close();
@@ -130,5 +143,19 @@ public class SMSService extends Service {
                 handler.postDelayed(this, 60000);
             }
         }, 2000);
+    }
+
+    private void recordSwitchResponse(SwitchResponse switchResponse){
+        smsServiceInterface.recordSwitchResponse(switchResponse).enqueue(new Callback<SwitchResponse>() {
+            @Override
+            public void onResponse(Call<SwitchResponse> call, Response<SwitchResponse> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<SwitchResponse> call, Throwable t) {
+
+            }
+        });
     }
 }

@@ -13,14 +13,23 @@ public class SwitchResponse {
         this.IMEI = IMEI;
     }
 
-    public int getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
+    private String address;
     private String IMEI;
-    private int status;
+    private String status;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }
