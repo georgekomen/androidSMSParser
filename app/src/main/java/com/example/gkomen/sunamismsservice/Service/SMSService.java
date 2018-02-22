@@ -1,32 +1,20 @@
 package com.example.gkomen.sunamismsservice.Service;
 
-import android.app.Activity;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
-import android.telephony.SmsManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.gkomen.sunamismsservice.APIInterface.SMSServiceInterface;
 import com.example.gkomen.sunamismsservice.APIUtils.APIUtils;
 import com.example.gkomen.sunamismsservice.Model.Message;
 import com.example.gkomen.sunamismsservice.Model.SwitchResponse;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -126,7 +114,7 @@ public class SMSService extends Service {
                                 int imeiSI = msg.indexOf("*2",0)+2;
                                 int imeiEI = msg.indexOf("#2",0);
                                 String imei = msg.substring(imeiSI, imeiEI);
-                                switchResponse.setIMEI(imei);
+                                switchResponse.setImei(imei);
 
                                 int valueSI = msg.indexOf("*3", 0)+2;
                                 int valueEI = msg.indexOf("#3", 0);

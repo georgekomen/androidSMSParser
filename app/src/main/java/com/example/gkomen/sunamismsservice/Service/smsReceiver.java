@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.gkomen.sunamismsservice.APIInterface.SMSServiceInterface;
 import com.example.gkomen.sunamismsservice.APIUtils.APIUtils;
@@ -46,7 +45,7 @@ public class smsReceiver extends BroadcastReceiver {
                             int imeiSI = msgBody.indexOf("*2",0)+2;
                             int imeiEI = msgBody.indexOf("#2",0);
                             String imei = msgBody.substring(imeiSI, imeiEI);
-                            switchResponse.setIMEI(imei);
+                            switchResponse.setImei(imei);
 
                             int valueSI = msgBody.indexOf("*3", 0)+2;
                             int valueEI = msgBody.indexOf("#3", 0);

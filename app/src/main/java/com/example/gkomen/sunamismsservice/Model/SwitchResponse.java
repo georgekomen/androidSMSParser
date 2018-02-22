@@ -5,12 +5,12 @@ package com.example.gkomen.sunamismsservice.Model;
  */
 
 public class SwitchResponse {
-    public String getIMEI() {
-        return IMEI;
+    public String getImei() {
+        return imei;
     }
 
-    public void setIMEI(String IMEI) {
-        this.IMEI = IMEI;
+    public void setImei(String imei) {
+        this.imei = imei;
     }
 
     public String getStatus() {
@@ -22,7 +22,7 @@ public class SwitchResponse {
     }
 
     private String address;
-    private String IMEI;
+    private String imei;
     private String status;
 
     public String getAddress() {
