@@ -114,12 +114,12 @@ public class SMSService extends Service {
         smsServiceInterface.postMpesaMsg(mpesaMsgs).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                constants.showAlert(response.body() + "\n" + response.message());
+                constants.toast(response.body() + "\n" + response.message());
             }
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
-                constants.showAlert(call.toString());
+                constants.toast(call.toString());
             }
         });
     }
