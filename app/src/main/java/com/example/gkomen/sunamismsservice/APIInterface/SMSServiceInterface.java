@@ -1,6 +1,7 @@
 package com.example.gkomen.sunamismsservice.APIInterface;
 
 import com.example.gkomen.sunamismsservice.Model.Message;
+import com.example.gkomen.sunamismsservice.Model.MpesaMsg;
 import com.example.gkomen.sunamismsservice.Model.SwitchResponse;
 
 import java.util.List;
@@ -15,12 +16,11 @@ import retrofit2.http.POST;
  */
 
 public interface SMSServiceInterface {
-    @GET("getMessages")
-    Call<List<Message>> loadMessages();
-
-    @POST("markMessageAsSent")
-    Call<Message> markMessageAsSent(@Body Message message);
-
     @POST("recordSwitchResponse")
     Call<SwitchResponse> recordSwitchResponse(@Body SwitchResponse switchResponse);
+
+    // http://api.sunamiapp.net/api/customers/postReceive_mpesa/
+    @POST("postReceive_mpesa")
+    Call<String> postMpesaMsg(@Body List<MpesaMsg> mpesaMsgs);
+
 }

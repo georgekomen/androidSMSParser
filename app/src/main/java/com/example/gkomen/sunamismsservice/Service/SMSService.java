@@ -1,20 +1,23 @@
 package com.example.gkomen.sunamismsservice.Service;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.RequiresApi;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.example.gkomen.sunamismsservice.APIInterface.SMSServiceInterface;
 import com.example.gkomen.sunamismsservice.APIUtils.APIUtils;
-import com.example.gkomen.sunamismsservice.Model.Message;
+import com.example.gkomen.sunamismsservice.APIUtils.constants;
+import com.example.gkomen.sunamismsservice.Model.MpesaMsg;
 import com.example.gkomen.sunamismsservice.Model.SwitchResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -26,13 +29,17 @@ public class SMSService extends Service {
     private Handler handler;
     private Cursor cursor;
     private SwitchResponse switchResponse;
+    private String imei;
 
     public SMSService() {
 
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        TelephonyManager tm = (TelephonyManager) SMSService.this.getSystemService(Context.TELEPHONY_SERVICE);
+        imei = tm.getDeviceId();
         smsServiceInterface = APIUtils.sMSServiceInterface();
         readSms();
         return START_NOT_STICKY;
@@ -44,94 +51,49 @@ public class SMSService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private void getMessages() {
-        handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                smsServiceInterface.loadMessages().enqueue(new Callback<List<Message>>() {
-
-                    @RequiresApi(api = Build.VERSION_CODES.N)
-                    @Override
-                    public void onResponse(Call<List<Message>> call, Response<List<Message>> response) {
-                        if (response.isSuccessful()) {
-                            List<Message> changesList = response.body();
-                            changesList.forEach(change -> {
-
-                            });
-                        } else {
-                            System.out.println(response.errorBody());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<Message>> call, Throwable t) {
-
-                    }
-                });
-                handler.postDelayed(this, 60000);
-            }
-        }, 2000);
-    }
-
-    private void markMessageAsSent(Message message) {
-        smsServiceInterface.markMessageAsSent(message).enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if (response.isSuccessful()) {
-                    System.out.println(response.raw());
-                } else {
-                    System.out.println(response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-
-            }
-        });
-    }
-
     public void readSms() {
-        // public static final String INBOX = "content://sms/inbox";
-        // public static final String SENT = "content://sms/sent";
-        // public static final String DRAFT = "content://sms/draft";
         handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {
                 cursor = getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
+                        List<MpesaMsg> mpesaMsgs = new ArrayList<>();
                         for (int idx = 0; idx < cursor.getCount(); idx++) {
                             String msg = cursor.getString(cursor.getColumnIndexOrThrow("body"));
                             String address = cursor.getString(cursor.getColumnIndexOrThrow("address"));
                             String person = cursor.getString(cursor.getColumnIndexOrThrow("person"));
                             Log.d("-----------------------", msg);
-
                             //*1sunami#1 *2888888#2 *31#3
-                            if(msg.contains("*1sunami#1")){
-                                switchResponse = new SwitchResponse();
-
-                                int imeiSI = msg.indexOf("*2",0)+2;
-                                int imeiEI = msg.indexOf("#2",0);
-                                String imei = msg.substring(imeiSI, imeiEI);
-                                switchResponse.setImei(imei);
-
-                                int valueSI = msg.indexOf("*3", 0)+2;
-                                int valueEI = msg.indexOf("#3", 0);
-                                String value = msg.substring(valueSI,valueEI);
-                                switchResponse.setStatus(value);
-
-                                switchResponse.setAddress(address);
-
-                                recordSwitchResponse(switchResponse);
+                            if(msg.contains("*1sunami#1")) {
+//                                switchResponse = new SwitchResponse();
+//
+//                                int imeiSI = msg.indexOf("*2",0)+2;
+//                                int imeiEI = msg.indexOf("#2",0);
+//                                String imei = msg.substring(imeiSI, imeiEI);
+//                                switchResponse.setImei(imei);
+//
+//                                int valueSI = msg.indexOf("*3", 0)+2;
+//                                int valueEI = msg.indexOf("#3", 0);
+//                                String value = msg.substring(valueSI,valueEI);
+//                                switchResponse.setStatus(value);
+//
+//                                switchResponse.setAddress(address);
+//
+//                                recordSwitchResponse(switchResponse);
+                            } else {
+                                MpesaMsg mpesaMsg = new MpesaMsg(imei, msg, address, person);
+                                mpesaMsgs.add(mpesaMsg);
                             }
+                            cursor.moveToNext();
                         }
+                        postMpesaMsg(mpesaMsgs);
                         cursor.close();
                     }
                 }
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 10000);
             }
-        }, 1000);
+        }, 10000);
     }
 
     private void recordSwitchResponse(SwitchResponse switchResponse){
@@ -144,6 +106,20 @@ public class SMSService extends Service {
             @Override
             public void onFailure(Call<SwitchResponse> call, Throwable t) {
 
+            }
+        });
+    }
+
+    private void postMpesaMsg(List<MpesaMsg> mpesaMsgs){
+        smsServiceInterface.postMpesaMsg(mpesaMsgs).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                constants.showAlert(response.body() + "\n" + response.message());
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                constants.showAlert(call.toString());
             }
         });
     }
